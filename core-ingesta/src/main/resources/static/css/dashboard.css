@@ -1,0 +1,209 @@
+:root {
+  --bg-page: #0b0f19;
+  --bg-panel: #11182a;
+  --bg-card: #161f35;
+  --border: #232e48;
+  --text-primary: #e8ecf5;
+  --text-secondary: #9da3b4;
+  --risk-bueno: #22c55e;
+  --risk-aceptable: #eab308;
+  --risk-malo: #f97316;
+  --risk-muymalo: #ef4444;
+  --risk-extremo: #7e0023;
+  --accent: #3b82f6;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg-page);
+  color: var(--text-primary);
+  font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+  min-height: 100vh;
+}
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+}
+header h1 { font-size: 18px; font-weight: 500; }
+.status { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary); }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--risk-bueno); }
+.status-dot.offline { background: var(--risk-muymalo); }
+
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; padding: 16px; align-items: start; }
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.card h2 { font-size: 14px; font-weight: 500; color: var(--text-secondary); margin-bottom: 12px; }
+
+.stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--risk-bueno);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.stat-card .label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+.stat-card .value { font-size: 22px; font-weight: 600; }
+.stat-card .unit { font-size: 12px; color: var(--text-secondary); font-weight: 400; }
+
+.risk-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 6px;
+}
+
+.chart-wrap { position: relative; width: 100%; height: 260px; }
+.legend { display: flex; gap: 16px; font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; }
+.legend span { display: flex; align-items: center; gap: 6px; }
+.legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--bg-panel);
+  margin-bottom: 8px;
+}
+.list-item .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.list-item .text { flex: 1; min-width: 0; }
+.list-item .title { font-size: 13px; }
+.list-item .meta { font-size: 11px; color: var(--text-secondary); }
+
+.empty { font-size: 13px; color: var(--text-secondary); padding: 12px 0; text-align: center; }
+
+.list-item.clickable { cursor: pointer; transition: background 0.15s; }
+.list-item.clickable:hover { background: var(--bg-card); }
+.list-item.selected { outline: 1px solid var(--accent); }
+
+
+
+
+
+.filtros-historico { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; }
+.filtro-campo { display: flex; flex-direction: column; gap: 4px; }
+.filtro-campo label { font-size: 12px; color: var(--text-secondary); }
+.filtro-campo select, .filtro-campo input[type="date"] {
+  background: var(--bg-panel);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 13px;
+  font-family: inherit;
+}
+.filtro-campo select:focus, .filtro-campo input[type="date"]:focus { outline: 1px solid var(--accent); }
+.list-item.separator { border-top: 1px solid var(--border); margin-top: 4px; padding-top: 18px; }
+
+
+.crosshair-toggle { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); cursor: pointer; }
+.crosshair-toggle input { cursor: pointer; }
+.filtro-campo input[type="date"][readonly] { cursor: pointer; }
+
+
+.info-text { font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 8px; }
+.info-text strong { color: var(--text-primary); }
+.btn-saber-mas {
+  background: var(--bg-card); color: var(--accent); border: 1px solid var(--accent);
+  border-radius: 6px; padding: 8px 14px; font-size: 13px; cursor: pointer; width: 100%; margin-top: 4px;
+}
+.btn-saber-mas:hover { background: var(--accent); color: #fff; }
+.btn-volver {
+  background: transparent; color: var(--text-secondary); border: 1px solid var(--border);
+  border-radius: 6px; padding: 6px 12px; font-size: 13px; cursor: pointer; margin-bottom: 16px;
+}
+.btn-volver:hover { background: var(--bg-panel); color: var(--text-primary); }
+.variable-detalle { border: 1px solid; border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; }
+.variable-detalle:last-child { margin-bottom: 0; }
+.variable-detalle h3 { font-size: 15px; font-weight: 500; margin-bottom: 8px; }
+.variable-detalle p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 10px; }
+.tabla-umbrales { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+.tabla-umbrales th { text-align: left; color: var(--text-secondary); font-weight: 500; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+.tabla-umbrales td { padding: 6px 8px; border-bottom: 1px solid var(--border); }
+.nivel-bueno { color: var(--risk-bueno); font-weight: 500; }
+.nivel-aceptable { color: var(--risk-aceptable); font-weight: 500; }
+.nivel-malo { color: var(--risk-malo); font-weight: 500; }
+.nivel-muymalo { color: var(--risk-muymalo); font-weight: 500; }
+.nivel-extremo { color: var(--risk-extremo); font-weight: 500; }
+
+.info-box { border: 2px solid; border-radius: 8px; padding: 10px 12px; }
+.info-box-co2 { border-color: #2a78d6; }
+.info-box-pm25 { border-color: #eb6834; }
+.info-box-pm10 { border-color: #1baf7a; }
+
+.variable-detalle-co2 { border-color: #2a78d6; }
+.variable-detalle-pm25 { border-color: #eb6834; }
+.variable-detalle-pm10 { border-color: #1baf7a; }
+
+.info-box-temp { border-color: #a78bfa; }
+.info-box-hum { border-color: #22d3ee; }
+.variable-detalle-temp { border-color: #a78bfa; }
+.variable-detalle-hum { border-color: #22d3ee; }
+
+/* ===== Tarjetas: franja lateral con el color de cada variable ===== */
+:root {
+  --color-co2: #2a78d6;
+  --color-pm25: #eb6834;
+  --color-pm10: #1baf7a;
+  --color-temp: #a78bfa;
+  --color-hum: #22d3ee;
+  --texto-oscuro: #0b0f19;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border);   /* neutra por defecto; cada tarjeta le pone su color */
+  color: var(--text-primary);
+}
+.stat-card .label { color: var(--text-secondary); font-weight: 400; }
+.stat-card .unit { color: var(--text-secondary); }
+.stat-card .value { margin-bottom: 12px; }
+
+.tarjeta-co2  { border-left-color: var(--color-co2); }
+.tarjeta-pm25 { border-left-color: var(--color-pm25); }
+.tarjeta-pm10 { border-left-color: var(--color-pm10); }
+.tarjeta-temp { border-left-color: var(--color-temp); }
+.tarjeta-hum  { border-left-color: var(--color-hum); }
+
+/* Tarjeta de riesgo: sin nivel queda neutra; con nivel se llena con el color de ese nivel (igual que antes) */
+.tarjeta-riesgo .risk-badge {
+  padding: 0; background: transparent; color: inherit;
+  font-size: 20px; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere;
+}
+.tarjeta-riesgo[data-nivel] .label { color: inherit; }
+.tarjeta-riesgo[data-nivel="BUENO"]               { background: var(--risk-bueno);     border-color: var(--risk-bueno);     color: var(--texto-oscuro); }
+.tarjeta-riesgo[data-nivel="ACEPTABLE"]           { background: var(--risk-aceptable); border-color: var(--risk-aceptable); color: var(--texto-oscuro); }
+.tarjeta-riesgo[data-nivel="MALO"]                { background: var(--risk-malo);      border-color: var(--risk-malo);      color: var(--texto-oscuro); }
+.tarjeta-riesgo[data-nivel="MUY MALO"]            { background: var(--risk-muymalo);   border-color: var(--risk-muymalo);   color: var(--texto-oscuro); }
+.tarjeta-riesgo[data-nivel="EXTREMADAMENTE MALO"] { background: var(--risk-extremo);   border-color: var(--risk-extremo);   color: #ffffff; }
+.tarjeta-riesgo[data-nivel="EXTREMADAMENTE MALO"] .risk-badge { font-size: 14px; }
+
+/* Barra de riesgo de CO2, PM2.5 y PM10: corta (1/5 del ancho), centrada y con el color del nivel */
+.barra-riesgo {
+  width: 20%;
+  min-width: 24px;
+  align-self: center;
+  margin-top: auto;
+  background: var(--border);
+  border-radius: 4px;
+}
+.barra-relleno { display: block; height: 6px; border-radius: 4px; background: transparent; }
+.barra-riesgo[data-nivel="BUENO"] .barra-relleno               { background: var(--risk-bueno); }
+.barra-riesgo[data-nivel="ACEPTABLE"] .barra-relleno           { background: var(--risk-aceptable); }
+.barra-riesgo[data-nivel="MALO"] .barra-relleno                { background: var(--risk-malo); }
+.barra-riesgo[data-nivel="MUY MALO"] .barra-relleno            { background: var(--risk-muymalo); }
+.barra-riesgo[data-nivel="EXTREMADAMENTE MALO"] .barra-relleno { background: var(--risk-extremo); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55); }

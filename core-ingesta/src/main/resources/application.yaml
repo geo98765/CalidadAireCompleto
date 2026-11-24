@@ -1,0 +1,60 @@
+server:
+  port: 8081 # El puerto donde vivirá tu microservicio de ingesta
+
+spring:
+  application:
+    name: core-ingesta
+  web:
+    resources:
+      cache:
+        period: 0
+
+  # Base de datos posstgreSQL
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/calidad_aire_db}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update # Crea o actualiza las tablas automáticamente al iniciar
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  topics:
+    normales: fog/lecturas/normales
+    criticas: fog/alertas/criticas
+    notificaciones: interno/notificaciones/criticas
+
+#Broker MQTT (Mosquitto)
+mqtt:
+  broker:
+    url: tcp://localhost:1883
+    client-id: backend-core-ingesta
+  topics:
+    # normales: fog/lecturas/normales
+    # criticas: fog/alertas/criticas
+    lecturas: "fog/lecturas/#,planta1/limpio/#"
+    alertas: "fog/alertas/#,planta1/alarma/#"
+    notificaciones: interno/notificaciones/criticas
+
+#Swagger / OpenAPI
+springdoc:
+  swagger-ui:
+    path: /docs
+  api-docs:
+    path: /v3/api-docs
+
+# Política de alertas
+alertas:
+  correo-desde-nodo: false        # alarmas que publica el nodo fog: se guardan y se muestran, sin correo
+  correo-desde-motor: true        # alertas del motor de reglas NOM-172: sí envían correo
+  enfriamiento-minutos: 60        # no repetir si el nodo ya tuvo una alerta igual o más grave en este tiempo (0 = desactivado)
+  antiguedad-maxima-minutos: 30   # eventos más viejos que esto se guardan sin avisar (0 = desactivado)
+
+logging:
+  level:
+    org.springframework.web.socket.config.WebSocketMessageBrokerStats: WARN

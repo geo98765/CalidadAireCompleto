@@ -1,0 +1,112 @@
+# Sistema completo: nodo de borde (Node.js) + broker MQTT + base de datos + microservicios Spring Boot.
+# Todos hablan con el MISMO broker (servicio "mosquitto").
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: broker-mosquitto
+    ports:
+      - "1883:1883"          # el ESP32 publica aquí: IP_DE_ESTE_EQUIPO:1883
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mosquitto_data:/mosquitto/data
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_sub -h localhost -t '$$SYS/#' -C 1 -i healthcheck -W 3 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  base_de_datos:
+    image: postgres:18
+    container_name: postgres-calidad-aire
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-calidad_aire}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-calidad_aire_dev}
+      POSTGRES_DB: calidad_aire_db
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./db/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-calidad_aire} -d calidad_aire_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: always
+
+  core-ingesta:
+    build:
+      context: ./core-ingesta
+    container_name: core-ingesta
+    ports:
+      - "8081:8081"          # dashboard: http://localhost:8081/dashboard.html
+    environment:
+      DB_URL: jdbc:postgresql://base_de_datos:5432/calidad_aire_db
+      DB_USERNAME: ${DB_USERNAME:-calidad_aire}
+      DB_PASSWORD: ${DB_PASSWORD:-calidad_aire_dev}
+      MQTT_BROKER_URL: tcp://mosquitto:1883
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+      base_de_datos:
+        condition: service_healthy
+    restart: always
+
+  core-notificaciones:
+    build:
+      context: ./core-notificaciones
+    container_name: core-notificaciones
+    environment:
+      DB_URL: jdbc:postgresql://base_de_datos:5432/calidad_aire_db
+      DB_USERNAME: ${DB_USERNAME:-calidad_aire}
+      DB_PASSWORD: ${DB_PASSWORD:-calidad_aire_dev}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_DESTINATARIO: ${MAIL_DESTINATARIO:-}
+      MQTT_BROKER_URL: tcp://mosquitto:1883
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+      base_de_datos:
+        condition: service_healthy
+    restart: always
+
+  nodo-borde:
+    build:
+      context: ./nodo-borde
+    container_name: nodo-borde
+    environment:
+      MQTT_HOST: mosquitto
+      MQTT_PORT: "1883"
+      MQTT_CLIENT_ID: nodo_borde_planta1
+      API_ACK: "false"       # Spring no publica ACK; si lo activas el nodo reenviará todo sin parar
+      DB_PATH: /app/data/nodo.db
+      ALARM_LOG: /app/logs/alarmas.log
+    volumes:
+      - nodo_data:/app/data  # cola SQLite (store & forward)
+      - nodo_logs:/app/logs
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    restart: always
+
+  # Opcional, solo para probar sin el ESP32:  docker compose --profile demo up -d simulador
+  simulador:
+    profiles: ["demo"]
+    build:
+      context: ./nodo-borde
+    container_name: simulador-esp32
+    command: ["node", "tools/esp32-sim.js", "--every", "2000"]
+    environment:
+      MQTT_HOST: mosquitto
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  mosquitto_data:
+  nodo_data:
+  nodo_logs:
